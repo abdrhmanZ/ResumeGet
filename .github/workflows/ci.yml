@@ -1,0 +1,22 @@
+name: Build and test
+
+on: [push, pull_request, workflow_dispatch]
+
+permissions:
+  contents: read
+
+jobs:
+  windows:
+    runs-on: windows-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-dotnet@v6
+        with:
+          dotnet-version: '10.0.x'
+      - run: dotnet restore ResumeGet.slnx
+      - run: dotnet build ResumeGet.slnx --configuration Release --no-restore
+      - run: dotnet test ResumeGet.slnx --configuration Release --no-build --logger "console;verbosity=normal"
+      - name: Verify interruption and resume through the CLI
+        shell: pwsh
+        run: ./scripts/demo.ps1 -CliPath ./src/ResumeGet.Cli/bin/Release/net10.0/resumeget.dll

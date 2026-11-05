@@ -1,0 +1,5 @@
+<Solution>
+  <Project Path="src/ResumeGet.Engine/ResumeGet.Engine.csproj" />
+  <Project Path="src/ResumeGet.Cli/ResumeGet.Cli.csproj" />
+  <Project Path="tests/ResumeGet.Tests/ResumeGet.Tests.csproj" />
+</Solution>
