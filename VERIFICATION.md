@@ -1,32 +1,34 @@
-# Verification status
+# Verification record
 
-Prepared on **2026-11-05**. This is a source-and-build delivery awaiting permission to execute on the development machine.
+Last checked on **2026-11-06**. The [GitHub Actions run](https://github.com/abdrhmanZ/ResumeGet/actions/runs/42012076126) completed successfully on **2026-11-05** for code commit [`98ea6e7`](https://github.com/abdrhmanZ/ResumeGet/commit/98ea6e76c0094602514f2c8952d0c59becae6fce).
 
-## Confirmed checks
+## Verified on GitHub Actions
 
-- Windows build environment: .NET SDK **10.0.401**, with .NET runtime **10.0.12** installed.
-- The Release solution build succeeds with **0 warnings and 0 errors**. This compiles the engine, CLI, and test project; it does not prove their runtime behavior.
-- The test source contains **23 cases** (10 facts and 13 theory inputs). None is reported as passed in this delivery.
-- C# whitespace formatting passes `dotnet format whitespace --folder --verify-no-changes`, excluding generated `bin` and `obj` directories.
-- Framework-dependent Release publishing succeeds. The CLI package contains the application and engine DLLs, runtime configuration, dependency manifest, and debug symbols; no runtime is bundled.
-- Source review covered range validation, file ownership, cancellation, and error handling. Regression cases cover preservation of a pre-existing lock file and case-insensitive HTTP header values.
-- The PowerShell demo passes a static syntax check. The demo itself has not been executed.
+The `windows-latest` job used the repository's [.NET 10 workflow](.github/workflows/ci.yml) and completed:
 
-## Pending checks
+- Package restore and the Release solution build.
+- All **23 test cases** in the xUnit suite.
+- The CLI interruption/resume demo, including the final SHA-256 comparison against its known sample.
 
-An earlier test attempt was blocked while loading `ResumeGet.Engine.dll`:
+The demo exercises two separate CLI invocations against a loopback HTTP server: the first response ends after a saved prefix, and the second must request the remaining range with the expected validator. It prints `PASS / Interrupted, resumed, and SHA-256 matched.` only after its checks succeed.
+
+This evidence covers the checked-in scenarios and the local demo. No coverage percentage, performance benchmark, power-loss recovery guarantee, or general remote-file checksum verification is claimed.
+
+## Local preparation checks
+
+On the development machine, .NET SDK **10.0.401** produced a Release build with **0 warnings and 0 errors**. C# whitespace formatting, PowerShell syntax checking, and framework-dependent publishing also succeeded.
+
+Local runtime testing remains blocked while loading `ResumeGet.Engine.dll`:
 
 ```text
 An Application Control policy has blocked this file. (0x800711C7)
 ```
 
-Consequently, **the functional test suite has not passed** and **the end-to-end demo has not been verified**. The user chose to prepare the project here pending authorized execution. No security-policy changes or workarounds were applied.
+The successful runtime evidence above comes from GitHub's Windows runner, not this restricted device. No local security-policy changes or workarounds were applied.
 
-The workflow in `.github/workflows/ci.yml` is included for a future repository push. It has not run on GitHub. There is no successful CI result or coverage measurement to report.
+## Reproduce the checks
 
-## Checks to run after execution is authorized
-
-From the source project root, with a .NET 10 SDK:
+From the repository root, with a .NET 10 SDK and permission to execute the project:
 
 ```powershell
 dotnet restore ResumeGet.slnx
@@ -37,9 +39,9 @@ dotnet test ResumeGet.slnx --configuration Release --no-build
 Then use PowerShell 7 for the local demo:
 
 ```powershell
-pwsh -File scripts/demo.ps1
+pwsh -File scripts/demo.ps1 -CliPath ./src/ResumeGet.Cli/bin/Release/net10.0/resumeget.dll
 ```
 
-The demo creates a local HTTP server and a new temporary directory. It expects the first transfer to fail after a saved prefix, then runs the same CLI command again and compares the completed file to the original with SHA-256. A successful demo prints `PASS / Interrupted, resumed, and SHA-256 matched.` Keep the test output and demo result as the runtime evidence before presenting the project as tested.
+The demo creates a new temporary directory and keeps its files for inspection. It prints that directory's path on success.
 
 The separately packaged CLI is framework-dependent and unsigned. It needs a .NET 10 runtime and remains subject to the device's application-control policy. Publishing or extracting it does not grant execution approval.
