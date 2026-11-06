@@ -14,21 +14,9 @@ The demo exercises two separate CLI invocations against a loopback HTTP server: 
 
 This evidence covers the checked-in scenarios and the local demo. No coverage percentage, performance benchmark, power-loss recovery guarantee, or general remote-file checksum verification is claimed.
 
-## Local preparation checks
-
-On the development machine, .NET SDK **10.0.401** produced a Release build with **0 warnings and 0 errors**. C# whitespace formatting, PowerShell syntax checking, and framework-dependent publishing also succeeded.
-
-Local runtime testing remains blocked while loading `ResumeGet.Engine.dll`:
-
-```text
-An Application Control policy has blocked this file. (0x800711C7)
-```
-
-The successful runtime evidence above comes from GitHub's Windows runner, not this restricted device. No local security-policy changes or workarounds were applied.
-
 ## Reproduce the checks
 
-From the repository root, with a .NET 10 SDK and permission to execute the project:
+From the repository root, with a .NET 10 SDK:
 
 ```powershell
 dotnet restore ResumeGet.slnx
@@ -43,5 +31,3 @@ pwsh -File scripts/demo.ps1 -CliPath ./src/ResumeGet.Cli/bin/Release/net10.0/res
 ```
 
 The demo creates a new temporary directory and keeps its files for inspection. It prints that directory's path on success.
-
-The separately packaged CLI is framework-dependent and unsigned. It needs a .NET 10 runtime and remains subject to the device's application-control policy. Publishing or extracting it does not grant execution approval.

@@ -14,8 +14,7 @@
 <p align="center">
   <a href="#quick-start">Quick start</a> ·
   <a href="#try-an-interruption">Demo</a> ·
-  <a href="#architecture">Architecture</a> ·
-  <a href="docs/WALKTHROUGH.ar.md">الشرح بالمصري</a>
+  <a href="#architecture">Architecture</a>
 </p>
 
 ResumeGet is a small command-line downloader with one central question: **when can a new HTTP response safely continue an existing partial file?**
@@ -24,7 +23,7 @@ Run the same command after an interruption. The engine checks the file version, 
 
 > **Verified on GitHub Actions:** Release build, **23 passing tests**, and the CLI interruption/resume demo with a matching SHA-256. [View the successful run](https://github.com/abdrhmanZ/ResumeGet/actions/runs/42012076126) · [Verification record](VERIFICATION.md).
 
-## What this project demonstrates
+## Features
 
 | Engineering concern | Implementation |
 | --- | --- |
@@ -37,7 +36,7 @@ Run the same command after an interruption. The engine checks the file version, 
 
 ## Quick start
 
-You need a **.NET 10 SDK**. Run these commands from the repository root, in an environment permitted to execute the application:
+You need a **.NET 10 SDK**. Run these commands from the repository root:
 
 ```powershell
 dotnet restore ResumeGet.slnx
@@ -122,7 +121,7 @@ flowchart LR
 
 The engine has no dependency on terminal presentation. `HttpClient` is supplied by the caller; the production projects use no external NuGet packages.
 
-### Why these choices?
+### Design decisions
 
 For `archive.zip`, the tool owns `archive.zip.part`, `archive.zip.resume.json`, and a temporary `archive.zip.resume.lock`.
 
@@ -130,8 +129,6 @@ For `archive.zip`, the tool owns `archive.zip.part`, `archive.zip.resume.json`, 
 - **Metadata precedes body writes.** It records the original/final URL, validator, total size, and format version through a temporary file.
 - **The final name signals completion.** The partial file is flushed, closed, and moved without overwriting an existing destination. A complete saved partial can be finalized on the next run without another HTTP request.
 - **One invocation is one attempt.** Automatic retry policy, parallel segments, and queues are outside this project's scope.
-
-Start reading at `DownloadSession.DownloadAsync`, then follow the acceptance rules in `ResumePolicy`. The [Arabic walkthrough](docs/WALKTHROUGH.ar.md) explains the decisions and failure cases step by step.
 
 ## Tests and publishing
 
@@ -148,7 +145,7 @@ dotnet publish src/ResumeGet.Cli/ResumeGet.Cli.csproj --configuration Release --
 dotnet ./publish/resumeget.dll --help
 ```
 
-Keep the published files together. Running the published DLL requires a **.NET 10 runtime** and permission under the device's application-control policy. `global.json` selects stable .NET 10 SDKs from 10.0.100 onward within that major/minor version.
+Keep the published files together. Running the published DLL requires a **.NET 10 runtime**. `global.json` selects stable .NET 10 SDKs from 10.0.100 onward within that major/minor version.
 
 ## Deliberate limits
 
